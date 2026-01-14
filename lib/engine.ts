@@ -1,57 +1,63 @@
-import { PHASES, PhaseID } from './phases';
+import { PhaseID, PHASES } from './phases';
 
 export interface PhaseState {
+  currentPhase: PhaseID;
   completed: PhaseID[];
-  current: PhaseID;
-}
-
-export function createInitialState(): PhaseState {
-  return {
-    completed: [],
-    current: 'A',
+  idea?: {
+    text: string;
+    timestamp: string;
   };
 }
 
-export function canEnterPhase(
-  state: PhaseState,
-  target: PhaseID
-): { allowed: boolean; warning?: string } {
-  const targetIndex = PHASES.findIndex(p => p.id === target);
-  const missingRequired = PHASES
-    .slice(0, targetIndex)
-    .filter(p => p.required && !state.completed.includes(p.id));
+const STORAGE_KEY = 'ideaforge_state';
 
-  if (missingRequired.length > 0) {
-    return {
-      allowed: true,
-      warning:
-        `You are skipping required phases: ${missingRequired
-          .map(p => p.id)
-          .join(', ')}. This may weaken your outcome.`,
+export function createInitialState(): PhaseState {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) return JSON.parse(stored);
+  }
+
+  return {
+    currentPhase: 'A',
+    completed: [],
+  };
+}
+
+function persist(state: PhaseState) {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+}
+
+export function canEnterPhase(state: PhaseState, phase: PhaseID): boolean {
+  const index = PHASES.findIndex(p => p.id === phase);
+  if (index === 0) return true;
+  const previous = PHASES[index - 1].id;
+  return state.completed.includes(previous);
+}
+
+export function moveToPhase(state: PhaseState, phase: PhaseID): PhaseState {
+  if (!canEnterPhase(state, phase)) return state;
+  const next = { ...state, currentPhase: phase };
+  persist(next);
+  return next;
+}
+
+export function completePhase(state: PhaseState, data?: any): PhaseState {
+  if (state.completed.includes(state.currentPhase)) return state;
+
+  const next: PhaseState = {
+    ...state,
+    completed: [...state.completed, state.currentPhase],
+  };
+
+  if (state.currentPhase === 'A' && data?.ideaText) {
+    next.idea = {
+      text: data.ideaText,
+      timestamp: new Date().toISOString(),
     };
   }
 
-  return { allowed: true };
-}
-
-export function completePhase(
-  state: PhaseState,
-  phase: PhaseID
-): PhaseState {
-  if (state.completed.includes(phase)) return state;
-
-  return {
-    completed: [...state.completed, phase],
-    current: phase,
-  };
-}
-
-export function moveToPhase(
-  state: PhaseState,
-  target: PhaseID
-): PhaseState {
-  return {
-    ...state,
-    current: target,
-  };
+  persist(next);
+  return next;
 }

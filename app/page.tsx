@@ -12,47 +12,28 @@ import {
 
 export default function IdeaForgeApp() {
   const [state, setState] = useState<PhaseState>(createInitialState());
-  const [warning, setWarning] = useState<string | null>(null);
+  const [ideaText, setIdeaText] = useState('');
 
-  function selectPhase(id: PhaseID) {
-    const check = canEnterPhase(state, id);
-    if (check.warning) setWarning(check.warning);
-    else setWarning(null);
-
-    if (check.allowed) {
-      setState(moveToPhase(state, id));
-    }
-  }
-
-  function markComplete() {
-    setState(completePhase(state, state.current));
-  }
-
-  const currentPhase = PHASES.find(p => p.id === state.current)!;
+  const phase = PHASES.find(p => p.id === state.currentPhase)!;
 
   return (
-    <main style={{ padding: 32, fontFamily: 'system-ui' }}>
+    <main style={{ padding: 32, maxWidth: 800 }}>
       <h1>IdeaForge</h1>
-      <p>From idea to reality — structured, honest, secure.</p>
-
-      <hr />
+      <p><em>From idea to reality — structured, honest, secure.</em></p>
 
       <h2>Phases</h2>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         {PHASES.map(p => (
           <button
             key={p.id}
-            onClick={() => selectPhase(p.id)}
+            disabled={!canEnterPhase(state, p.id)}
+            onClick={() => setState(moveToPhase(state, p.id))}
             style={{
-              padding: '6px 10px',
-              borderRadius: 6,
-              border:
-                state.current === p.id
-                  ? '2px solid black'
-                  : '1px solid #ccc',
-              background: state.completed.includes(p.id)
-                ? '#e6ffe6'
-                : '#f9f9f9',
+              padding: '4px 8px',
+              background:
+                p.id === state.currentPhase ? '#000' :
+                state.completed.includes(p.id) ? '#ccc' : '#eee',
+              color: p.id === state.currentPhase ? '#fff' : '#000',
             }}
           >
             {p.id}
@@ -60,34 +41,44 @@ export default function IdeaForgeApp() {
         ))}
       </div>
 
-      {warning && (
-        <div style={{ marginTop: 16, color: 'darkorange' }}>
-          ⚠️ {warning}
-        </div>
-      )}
-
       <hr />
 
-      <h2>
-        Phase {currentPhase.id}: {currentPhase.title}
-      </h2>
-      <p>{currentPhase.purpose}</p>
+      <h2>{phase.title}</h2>
+      <p>{phase.description}</p>
 
-      <button
-        onClick={markComplete}
-        style={{
-          marginTop: 12,
-          padding: '8px 14px',
-          borderRadius: 8,
-        }}
-      >
-        Mark Phase Complete
-      </button>
+      {state.currentPhase === 'A' && !state.completed.includes('A') && (
+        <>
+          <textarea
+            placeholder="Describe your idea..."
+            value={ideaText}
+            onChange={e => setIdeaText(e.target.value)}
+            style={{ width: '100%', height: 100 }}
+          />
+          <br />
+          <button
+            disabled={!ideaText.trim()}
+            onClick={() => {
+              setState(completePhase(state, { ideaText }));
+              setIdeaText('');
+            }}
+          >
+            Lock Idea
+          </button>
+        </>
+      )}
 
-      <div style={{ marginTop: 24 }}>
-        <strong>Completed Phases:</strong>{' '}
-        {state.completed.join(', ') || 'None'}
-      </div>
+      {state.completed.includes(state.currentPhase) && (
+        <p><strong>Phase completed.</strong></p>
+      )}
+
+      {state.idea && (
+        <>
+          <hr />
+          <h3>Locked Idea</h3>
+          <p>{state.idea.text}</p>
+          <small>{new Date(state.idea.timestamp).toLocaleString()}</small>
+        </>
+      )}
     </main>
   );
 }

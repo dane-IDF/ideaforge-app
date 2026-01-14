@@ -1,5 +1,3 @@
-// IdeaForge — Phase Definitions (A → L)
-
 export type PhaseID =
   | 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
   | 'G' | 'H' | 'I' | 'J' | 'K' | 'L';
@@ -7,81 +5,68 @@ export type PhaseID =
 export interface Phase {
   id: PhaseID;
   title: string;
-  purpose: string;
-  required: boolean;
+  description: string;
 }
 
 export const PHASES: Phase[] = [
   {
     id: 'A',
     title: 'Idea Capture & Lock',
-    purpose: 'Securely record the raw idea and timestamp it.',
-    required: true,
+    description: 'Securely record the raw idea and timestamp it.',
   },
   {
     id: 'B',
-    title: 'Clarity & Scope',
-    purpose: 'Define what the idea is and what it is not.',
-    required: true,
+    title: 'Problem Definition',
+    description: 'Clearly define the problem being solved.',
   },
   {
     id: 'C',
-    title: 'Reality Check',
-    purpose: 'Determine if the idea is viable or fundamentally flawed.',
-    required: true,
+    title: 'Solution Outline',
+    description: 'Describe the proposed solution at a high level.',
   },
   {
     id: 'D',
-    title: 'Market & User Fit',
-    purpose: 'Identify who would realistically want this.',
-    required: true,
+    title: 'Market Validation',
+    description: 'Validate demand and target users.',
   },
   {
     id: 'E',
-    title: 'Technical Feasibility',
-    purpose: 'Assess whether this can be built with current technology.',
-    required: true,
+    title: 'Competitive Analysis',
+    description: 'Analyze alternatives and differentiation.',
   },
   {
     id: 'F',
-    title: 'IP & Novelty Scan',
-    purpose: 'Check originality and potential conflicts.',
-    required: true,
+    title: 'Business Model',
+    description: 'Define how value is created and captured.',
   },
   {
     id: 'G',
-    title: 'Product Shape',
-    purpose: 'Define what the first real version would be.',
-    required: false,
+    title: 'Technical Feasibility',
+    description: 'Assess technical requirements and risks.',
   },
   {
     id: 'H',
-    title: 'Business Model',
-    purpose: 'How this could realistically make money.',
-    required: false,
+    title: 'MVP Definition',
+    description: 'Define minimum viable product scope.',
   },
   {
     id: 'I',
-    title: 'Risk Analysis',
-    purpose: 'Identify what could kill this idea.',
-    required: false,
+    title: 'Execution Plan',
+    description: 'Plan development and launch steps.',
   },
   {
     id: 'J',
-    title: 'Development Path',
-    purpose: 'Outline steps to bring this to life.',
-    required: false,
+    title: 'Risk Review',
+    description: 'Identify and mitigate key risks.',
   },
   {
     id: 'K',
     title: 'Launch Readiness',
-    purpose: 'Assess readiness for real-world exposure.',
-    required: false,
+    description: 'Prepare for release.',
   },
   {
     id: 'L',
-    title: 'Decision Gate',
-    purpose: 'Proceed, pivot, or abandon with clarity.',
-    required: true,
+    title: 'Post-Launch Review',
+    description: 'Evaluate outcomes and next steps.',
   },
 ];
